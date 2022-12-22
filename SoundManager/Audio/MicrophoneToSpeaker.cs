@@ -1,50 +1,49 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System;
+using NAudio.Wave;
 
 namespace SoundManager.Audio;
 
-using System;
-using System.IO;
-using NAudio.CoreAudioApi;
-using NAudio.Wave;
+public class MicrophoneToSpeaker
+{
+    private readonly WaveIn _waveIn;
+    private readonly BufferedWaveProvider _waveProvider;
+    private readonly VolumeWaveProvider16 _volumeWaveProvider;
+    private readonly WaveOut _waveOut;
+    private readonly float _volume = 1.0f;
 
-    class MicrophoneToSpeaker
+    public MicrophoneToSpeaker()
     {
-        private WaveIn waveIn;
-        
-        public void Run()
+        // MMDeviceEnumerator deviceEnumerator = new MMDeviceEnumerator();
+        // MMDevice defaultInputDevice = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Console);
+
+        _waveIn = new WaveIn();
+        _waveIn.DeviceNumber = 0;
+        _waveIn.WaveFormat = new WaveFormat(44100, 1);
+        _waveIn.DataAvailable += WaveIn_DataAvailable;
+        _waveIn.StartRecording();
+
+        _waveProvider = new BufferedWaveProvider(_waveIn.WaveFormat)
         {
-            // Den Standard-Eingabe-Endpunkt abrufen
-            MMDeviceEnumerator deviceEnumerator = new MMDeviceEnumerator();
-            MMDevice defaultInputDevice = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Console);
+            BufferDuration = TimeSpan.FromSeconds(5)
+        };
 
-            // Einen WaveIn-Streamer mit dem Standard-Eingabe-Endpunkt erstellen
-            waveIn = new WaveIn();
-            waveIn.DeviceNumber = 0;
-            waveIn.WaveFormat = new WaveFormat(44100, 1);
-            waveIn.DataAvailable += WaveIn_DataAvailable;
-            waveIn.StartRecording();
-            
-
-            // Aufnahme beenden und WaveIn-Streamer schließen
-            // waveIn.StopRecording();
-            // waveIn.Dispose();
-        }
-
-        private void WaveIn_DataAvailable(object sender, WaveInEventArgs e)
+        _volumeWaveProvider = new VolumeWaveProvider16(_waveProvider)
         {
-            // Den Standard-Ausgabe-Endpunkt abrufen
-            MMDeviceEnumerator deviceEnumerator = new MMDeviceEnumerator();
-            MMDevice defaultOutputDevice = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+            Volume = _volume
+        };
 
-            // Einen WaveOut-Player mit dem Standard-Ausgabe-Endpunkt erstellen
-            WaveOut waveOut = new WaveOut();
-            waveOut.DesiredLatency = 1;
-            waveOut.DeviceNumber = 0;
-            waveOut.Init(new RawSourceWaveStream(new MemoryStream(e.Buffer), waveIn.WaveFormat));
-
-            // Wiedergabe starten
-            waveOut.Play();
-        }
+        _waveOut = new WaveOut();
+        _waveOut.DeviceNumber = 0;
+        _waveOut.Init(_volumeWaveProvider);
     }
 
+    public void Run()
+    {
+        _waveOut.Play();
+    }
+    
+    private void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
+    {
+        _waveProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
+    }
+}
