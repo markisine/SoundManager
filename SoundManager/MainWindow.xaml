@@ -5,5 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="MainWindow" Height="550" Width="1920">
-    <Grid />
+    <Grid>
+        <!-- todo: MouseDoubleClick to reset -->
+        <Slider Height="300" Orientation="Vertical" Minimum="-60" Maximum="12" ValueChanged="RangeBase_OnValueChanged">
+            
+        </Slider>
+        <!-- TextBlock nur zum debuggen da, kommt noch weg! -->
+        <TextBlock Name="Text" Height="30">hallo</TextBlock>
+        
+    </Grid>
 </Window>

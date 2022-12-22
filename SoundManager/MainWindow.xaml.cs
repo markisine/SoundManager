@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using NAudio.Wave;
 using SoundManager.Audio;
 
@@ -16,5 +17,11 @@ public partial class MainWindow : Window
         
         MicrophoneToSpeaker microphoneToSpeaker = new MicrophoneToSpeaker();
         microphoneToSpeaker.Run();
+    }
+
+    private void RangeBase_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        
+        Text.Text = Math.Round(e.NewValue, 2).ToString();
     }
 }
