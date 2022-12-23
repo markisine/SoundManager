@@ -15,7 +15,7 @@ public class MicrophoneToSpeaker
     {
         // MMDeviceEnumerator deviceEnumerator = new MMDeviceEnumerator();
         // MMDevice defaultInputDevice = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Console);
-
+        
         _waveIn = new WaveIn();
         _waveIn.DeviceNumber = 0;
         _waveIn.WaveFormat = new WaveFormat(44100, 1);
