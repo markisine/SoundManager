@@ -21,8 +21,19 @@ public partial class MainWindow : Window
             Height = 10,
             Width = 10,
         };
+
         
+        
+        Slider slider = new Slider()
+        {
+            Interval = 10,
+            Orientation = Orientation.Vertical,
+            Maximum = 12,
+            Minimum = -60
+        };
+
         Grid1.Children.Add(button);
+        Grid1.Children.Add(slider);
         
         MicrophoneToSpeaker microphoneToSpeaker = new MicrophoneToSpeaker();
         microphoneToSpeaker.Run();
